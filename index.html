@@ -63,6 +63,12 @@ document.getElementById("formSimulasi").addEventListener("submit", function(e){
   const tahunSelesai = parseInt(document.getElementById("tahunSelesai").value);
   const bulanSelesai = parseInt(document.getElementById("bulanSelesai").value);
 
+  // Validasi input
+  if (bulanMulai < 1 || bulanMulai > 12 || bulanSelesai < 1 || bulanSelesai > 12) {
+    alert("Bulan harus antara 1 sampai 12");
+    return;
+  }
+
   const totalBulanCicilan = (tahunSelesai - tahunMulai) * 12 + (bulanSelesai - bulanMulai + 1);
   const totalCicilan = totalBulanCicilan * cicilanBulanan;
 
@@ -73,28 +79,30 @@ document.getElementById("formSimulasi").addEventListener("submit", function(e){
     totalTabungan += tabunganBulanan;
     if (i % 12 === 0) totalTabungan += bonusTahunan;
 
-    // total cicilan yang BELUM dibayar termasuk bulan ini
-    const sisaCicilan = (totalBulanCicilan - i + 1) * cicilanBulanan;
+    const sisaCicilan = (totalBulanCicilan - i) * cicilanBulanan;
 
+    // Cek kapan tabungan cukup untuk melunasi sisa cicilan
     if (totalTabungan >= sisaCicilan && !percepatanBulan) {
       percepatanBulan = i;
     }
   }
 
   const bulanNames = ["Januari","Februari","Maret","April","Mei","Juni","Juli","Agustus","September","Oktober","November","Desember"];
+
   let hasil = `<h3>Hasil Simulasi Percepatan Pelunasan</h3>`;
-  hasil += `<p>Total cicilan normal hingga Mei ${tahunSelesai}: <b>Rp ${totalCicilan.toLocaleString('id-ID')}</b></p>`;
+  hasil += `<p>Total cicilan normal hingga ${bulanNames[bulanSelesai - 1]} ${tahunSelesai}: <b>Rp ${totalCicilan.toLocaleString('id-ID')}</b></p>`;
   hasil += `<p>Total tabungan hingga akhir periode: <b>Rp ${totalTabungan.toLocaleString('id-ID')}</b></p>`;
 
-  if (percepatanBulan && totalTabungan > 0) {
-    const totalBulanIndex = (tahunMulai - 1) * 12 + (bulanMulai - 1) + percepatanBulan;
+  if (percepatanBulan) {
+    // Hitung tanggal percepatan
+    const totalBulanIndex = (tahunMulai * 12 + (bulanMulai - 1)) + (percepatanBulan - 1);
     const tahunPercepatan = Math.floor(totalBulanIndex / 12);
     const bulanPercepatan = totalBulanIndex % 12;
 
     hasil += `<p>💰 Kamu bisa melakukan <b>percepatan pelunasan</b> pada 
               <b>${bulanNames[bulanPercepatan]} ${tahunPercepatan}</b>.</p>`;
   } else {
-    hasil += `<p>Belum cukup tabungan untuk percepatan. Pelunasan normal tetap di <b>Mei ${tahunSelesai}</b>.</p>`;
+    hasil += `<p>Belum cukup tabungan untuk melakukan percepatan. Pelunasan normal tetap pada <b>${bulanNames[bulanSelesai - 1]} ${tahunSelesai}</b>.</p>`;
   }
 
   document.getElementById("hasil").innerHTML = hasil;
