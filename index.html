@@ -2,14 +2,108 @@
 <html lang="id">
 <head>
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1"> <!-- penting -->
 <title>Simulasi Percepatan Pelunasan Cicilan</title>
 <style>
-  body { font-family: Arial, sans-serif; max-width: 650px; margin: 40px auto; line-height: 1.6; }
-  label { display: block; margin-top: 10px; font-weight: bold; }
-  input, button { padding: 8px; width: 100%; box-sizing: border-box; margin-top: 5px; }
-  button { background: #007bff; color: white; border: none; cursor: pointer; margin-top: 15px; }
-  button:hover { background: #0056b3; }
-  .result { background: #f5f5f5; padding: 15px; margin-top: 20px; border-radius: 6px; }
+  :root {
+    --primary: #007bff;
+    --primary-dark: #0056b3;
+    --bg-light: #f5f5f5;
+    --radius: 8px;
+  }
+
+  body {
+    font-family: 'Segoe UI', Arial, sans-serif;
+    margin: 0;
+    padding: 20px;
+    background: white;
+    color: #222;
+  }
+
+  h2 {
+    text-align: center;
+    margin-bottom: 20px;
+    font-size: 1.4rem;
+    color: var(--primary-dark);
+  }
+
+  form {
+    background: var(--bg-light);
+    padding: 20px;
+    border-radius: var(--radius);
+    box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+  }
+
+  label {
+    display: block;
+    font-weight: 600;
+    margin-top: 12px;
+    font-size: 0.9rem;
+  }
+
+  input {
+    padding: 10px;
+    width: 100%;
+    box-sizing: border-box;
+    margin-top: 6px;
+    border: 1px solid #ccc;
+    border-radius: var(--radius);
+    font-size: 1rem;
+  }
+
+  button {
+    width: 100%;
+    background: var(--primary);
+    color: #fff;
+    border: none;
+    border-radius: var(--radius);
+    padding: 12px;
+    margin-top: 20px;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+
+  button:hover {
+    background: var(--primary-dark);
+  }
+
+  .result {
+    background: var(--bg-light);
+    margin-top: 20px;
+    padding: 15px 20px;
+    border-radius: var(--radius);
+    font-size: 0.95rem;
+  }
+
+  .result h3 {
+    margin-top: 0;
+    color: var(--primary-dark);
+  }
+
+  /* RESPONSIVE */
+  @media (max-width: 600px) {
+    body {
+      padding: 15px;
+    }
+
+    form {
+      padding: 15px;
+    }
+
+    h2 {
+      font-size: 1.2rem;
+    }
+
+    input, button {
+      font-size: 0.95rem;
+    }
+
+    .result {
+      font-size: 0.9rem;
+      padding: 12px 15px;
+    }
+  }
 </style>
 </head>
 <body>
@@ -55,7 +149,6 @@ document.getElementById("formSimulasi").addEventListener("submit", function(e){
   const tahunSelesai = parseInt(document.getElementById("tahunSelesai").value);
   const bulanSelesai = parseInt(document.getElementById("bulanSelesai").value);
 
-  // Hitung total bulan cicilan
   const totalBulanCicilan = (tahunSelesai - tahunMulai) * 12 + (bulanSelesai - bulanMulai + 1);
   const totalCicilan = totalBulanCicilan * cicilanBulanan;
 
@@ -64,23 +157,17 @@ document.getElementById("formSimulasi").addEventListener("submit", function(e){
 
   for (let i = 1; i <= totalBulanCicilan; i++) {
     totalTabungan += tabunganBulanan;
-
     if (i % 12 === 0) totalTabungan += bonusTahunan;
 
     const sisaBulan = totalBulanCicilan - i;
     const sisaCicilan = sisaBulan * cicilanBulanan;
 
-    // hanya hitung percepatan kalau:
-    // - sudah ada tabungan
-    // - tabungan >= sisa cicilan
-    // - belum mencapai akhir masa cicilan
     if (totalTabungan > 0 && totalTabungan >= sisaCicilan && !percepatanBulan && i < totalBulanCicilan) {
       percepatanBulan = i;
     }
   }
 
   const bulanNames = ["Januari","Februari","Maret","April","Mei","Juni","Juli","Agustus","September","Oktober","November","Desember"];
-
   let hasil = `<h3>Hasil Simulasi Percepatan Pelunasan</h3>`;
   hasil += `<p>Total cicilan normal hingga Mei ${tahunSelesai}: <b>Rp ${totalCicilan.toLocaleString('id-ID')}</b></p>`;
   hasil += `<p>Total tabungan hingga akhir periode: <b>Rp ${totalTabungan.toLocaleString('id-ID')}</b></p>`;
@@ -93,8 +180,7 @@ document.getElementById("formSimulasi").addEventListener("submit", function(e){
     hasil += `<p>💰 Kamu bisa melakukan <b>percepatan pelunasan</b> pada 
               <b>${bulanNames[bulanPercepatan]} ${tahunPercepatan}</b>.</p>`;
   } else {
-    hasil += `<p>Belum cukup tabungan untuk melakukan percepatan pelunasan sebelum Mei ${tahunSelesai}. 
-              <br>Pelunasan normal tetap di <b>Mei ${tahunSelesai}</b>.</p>`;
+    hasil += `<p>Belum cukup tabungan untuk percepatan. Pelunasan normal tetap di <b>Mei ${tahunSelesai}</b>.</p>`;
   }
 
   document.getElementById("hasil").innerHTML = hasil;
