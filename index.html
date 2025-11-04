@@ -55,29 +55,26 @@ document.getElementById("formSimulasi").addEventListener("submit", function(e){
   const tahunSelesai = parseInt(document.getElementById("tahunSelesai").value);
   const bulanSelesai = parseInt(document.getElementById("bulanSelesai").value);
 
-  // Hitung total cicilan seluruh periode
+  // Hitung total bulan cicilan
   const totalBulanCicilan = (tahunSelesai - tahunMulai) * 12 + (bulanSelesai - bulanMulai + 1);
   const totalCicilan = totalBulanCicilan * cicilanBulanan;
 
-  // Simulasi tabungan dimulai dari bulan & tahun yang sama
   let totalTabungan = 0;
   let percepatanBulan = null;
 
   for (let i = 1; i <= totalBulanCicilan; i++) {
-    // tambah tabungan bulanan
     totalTabungan += tabunganBulanan;
 
-    // setiap 12 bulan dapat bonus tahunan
-    if (i % 12 === 0) {
-      totalTabungan += bonusTahunan;
-    }
+    if (i % 12 === 0) totalTabungan += bonusTahunan;
 
-    // hitung total cicilan tersisa (bulan ke depan)
     const sisaBulan = totalBulanCicilan - i;
     const sisaCicilan = sisaBulan * cicilanBulanan;
 
-    // Jika tabungan cukup untuk melunasi seluruh sisa cicilan
-    if (totalTabungan >= sisaCicilan && !percepatanBulan) {
+    // hanya hitung percepatan kalau:
+    // - sudah ada tabungan
+    // - tabungan >= sisa cicilan
+    // - belum mencapai akhir masa cicilan
+    if (totalTabungan > 0 && totalTabungan >= sisaCicilan && !percepatanBulan && i < totalBulanCicilan) {
       percepatanBulan = i;
     }
   }
@@ -86,20 +83,18 @@ document.getElementById("formSimulasi").addEventListener("submit", function(e){
 
   let hasil = `<h3>Hasil Simulasi Percepatan Pelunasan</h3>`;
   hasil += `<p>Total cicilan normal hingga Mei ${tahunSelesai}: <b>Rp ${totalCicilan.toLocaleString('id-ID')}</b></p>`;
-  hasil += `<p>Total tabungan terkumpul hingga akhir periode: <b>Rp ${totalTabungan.toLocaleString('id-ID')}</b></p>`;
+  hasil += `<p>Total tabungan hingga akhir periode: <b>Rp ${totalTabungan.toLocaleString('id-ID')}</b></p>`;
 
   if (percepatanBulan) {
-    // Hitung waktu percepatan dalam kalender
-    let totalBulanIndex = (tahunMulai - 1) * 12 + (bulanMulai - 1) + percepatanBulan;
-    let tahunPercepatan = Math.floor(totalBulanIndex / 12);
-    let bulanPercepatan = (totalBulanIndex % 12);
+    const totalBulanIndex = (tahunMulai - 1) * 12 + (bulanMulai - 1) + percepatanBulan;
+    const tahunPercepatan = Math.floor(totalBulanIndex / 12);
+    const bulanPercepatan = totalBulanIndex % 12;
 
-    hasil += `<p>Dengan menabung sebesar <b>Rp ${tabunganBulanan.toLocaleString('id-ID')}</b>/bulan 
-              dan bonus tahunan <b>Rp ${bonusTahunan.toLocaleString('id-ID')}</b>, 
-              kamu bisa melunasi seluruh sisa cicilan pada 
+    hasil += `<p>💰 Kamu bisa melakukan <b>percepatan pelunasan</b> pada 
               <b>${bulanNames[bulanPercepatan]} ${tahunPercepatan}</b>.</p>`;
   } else {
-    hasil += `<p>Tabunganmu belum cukup untuk melakukan percepatan pelunasan sebelum Mei ${tahunSelesai}.</p>`;
+    hasil += `<p>Belum cukup tabungan untuk melakukan percepatan pelunasan sebelum Mei ${tahunSelesai}. 
+              <br>Pelunasan normal tetap di <b>Mei ${tahunSelesai}</b>.</p>`;
   }
 
   document.getElementById("hasil").innerHTML = hasil;
