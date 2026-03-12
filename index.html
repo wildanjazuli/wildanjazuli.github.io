@@ -490,6 +490,57 @@
     }
     .reveal.visible { opacity: 1; transform: translateY(0); }
 
+    /* ───── BURGER MENU ───── */
+    .burger {
+      display: none;
+      flex-direction: column; justify-content: center;
+      gap: 5px; cursor: pointer; padding: 6px;
+      background: none; border: none; z-index: 200;
+    }
+    .burger span {
+      display: block; width: 24px; height: 2px;
+      background: var(--putih); border-radius: 2px;
+      transition: all 0.3s ease;
+      transform-origin: center;
+    }
+    .burger.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+    .burger.open span:nth-child(2) { opacity: 0; transform: scaleX(0); }
+    .burger.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+
+    .mobile-menu {
+      display: none;
+      position: fixed; top: 70px; left: 0; right: 0;
+      background: rgba(10,32,20,0.98);
+      backdrop-filter: blur(16px);
+      border-bottom: 1px solid rgba(201,168,76,0.3);
+      padding: 20px 5% 28px;
+      z-index: 99;
+      flex-direction: column; gap: 4px;
+      transform: translateY(-10px); opacity: 0;
+      transition: opacity 0.3s ease, transform 0.3s ease;
+    }
+    .mobile-menu.open {
+      display: flex; opacity: 1; transform: translateY(0);
+    }
+    .mobile-menu a {
+      color: rgba(255,255,255,0.85); text-decoration: none;
+      font-size: 15px; font-weight: 500;
+      padding: 13px 16px; border-radius: 10px;
+      transition: background 0.2s, color 0.2s;
+      border-left: 3px solid transparent;
+    }
+    .mobile-menu a:hover {
+      background: rgba(255,255,255,0.07);
+      color: var(--emas-muda);
+      border-left-color: var(--emas);
+    }
+    .mobile-menu .nav-daftar {
+      background: linear-gradient(135deg, var(--emas), var(--emas-muda));
+      color: var(--gelap) !important;
+      text-align: center; font-weight: 700;
+      border-left: none; margin-top: 8px;
+    }
+
     /* ───── RESPONSIVE ───── */
     @media (max-width: 900px) {
       .hero-grid, .kontak-grid { grid-template-columns: 1fr; }
@@ -499,6 +550,7 @@
       .galeri-item:first-child { grid-column: 1 / 3; grid-row: auto; }
       .footer-grid { grid-template-columns: 1fr 1fr; }
       .nav-links { display: none; }
+      .burger { display: flex; }
     }
     @media (max-width: 600px) {
       .galeri-grid { grid-template-columns: 1fr; }
@@ -527,7 +579,20 @@
     <a href="#kontak">Kontak</a>
     <a href="#daftar" class="nav-daftar">Daftar Sekarang</a>
   </div>
+  <button class="burger" id="burger" aria-label="Buka menu">
+    <span></span><span></span><span></span>
+  </button>
 </nav>
+
+<!-- MOBILE MENU -->
+<div class="mobile-menu" id="mobileMenu">
+  <a href="#keunggulan">Keunggulan</a>
+  <a href="#program">Program</a>
+  <a href="#galeri">Galeri</a>
+  <a href="#berita">Berita</a>
+  <a href="#kontak">Kontak</a>
+  <a href="#daftar" class="nav-daftar">Daftar Sekarang</a>
+</div>
 
 <!-- HERO -->
 <section class="hero">
@@ -535,7 +600,7 @@
     <div>
       <div class="hero-badge">
         <span class="dot"></span>
-        Penerimaan Siswa Baru 2026/2027
+        Penerimaan Siswa Baru 2025/2026
       </div>
       <h1>Madrasah Ibtidaiyah <em>Nurul Huda</em> Jakarta</h1>
       <p class="hero-sub">
@@ -805,7 +870,7 @@
         <div class="kontak-ico">✉️</div>
         <div class="kontak-detail">
           <strong>Email</strong>
-          <p>info@misnurulhuda-jakarta.sch.id</p>
+          <p><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="a0c9cec6cfe0cdc9d3ced5d2d5ccc8d5c4c18dcac1cbc1d2d4c18ed3c3c88ec9c4">[email&#160;protected]</a></p>
         </div>
       </div>
       <div class="kontak-item">
@@ -876,12 +941,27 @@
     </div>
   </div>
   <div class="footer-bottom">
-    <span>© 2026 MIS Nurul Huda Jakarta. Hak Cipta Dilindungi.</span>
+    <span>© 2025 MIS Nurul Huda Jakarta. Hak Cipta Dilindungi.</span>
     <span class="footer-emas">🌙 Dengan Izin Allah, Kami Mendidik Generasi Terbaik</span>
   </div>
 </footer>
 
-<script>
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+  // Burger menu
+  const burger = document.getElementById('burger');
+  const mobileMenu = document.getElementById('mobileMenu');
+  burger.addEventListener('click', () => {
+    burger.classList.toggle('open');
+    mobileMenu.classList.toggle('open');
+  });
+  // Close menu when a link is clicked
+  mobileMenu.querySelectorAll('a').forEach(a => {
+    a.addEventListener('click', () => {
+      burger.classList.remove('open');
+      mobileMenu.classList.remove('open');
+    });
+  });
+
   // Scroll reveal
   const observer = new IntersectionObserver((entries) => {
     entries.forEach((e, i) => {
@@ -899,14 +979,4 @@
   const navLinks = document.querySelectorAll('.nav-links a');
   window.addEventListener('scroll', () => {
     let current = '';
-    sections.forEach(s => {
-      if (window.scrollY >= s.offsetTop - 100) current = s.id;
-    });
-    navLinks.forEach(a => {
-      a.style.color = a.getAttribute('href') === '#' + current
-        ? 'var(--emas-muda)' : '';
-    });
-  });
-</script>
-</body>
-</html>
+    sections.forEach(s
